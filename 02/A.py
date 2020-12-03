@@ -1,0 +1,14 @@
+from re import compile
+
+regexp = compile('(\d+)-(\d+) (\w): (\w+)')
+
+with open('input.txt') as f:
+    matches = [regexp.match(line) for line in f.readlines()]
+
+valid = 0
+for match in matches:
+    frm, to, letter, password = int(match[1]), int(match[2]), match[3], match[4]
+    count = len([l for l in password if l == letter])
+    valid += int(frm <= count <= to)
+
+print(valid)
