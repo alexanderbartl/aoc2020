@@ -1,48 +1,67 @@
-seat_map = {}
-with open('input.txt') as f:
-    raw_input = f.readlines()
+class Map:
+    def __init__(self):
+        self._map = {}
 
-for y, line in enumerate(raw_input):
-    for x, char in enumerate(line.strip()):
-        seat_map[(x, y)] = char
+    def __getitem__(self, item):
+        return self._map.get(item)
 
+    def __setitem__(self, key, value):
+        self._map[key] = value
 
-xmax = len(raw_input[0].strip())
-ymax = len(raw_input)
+    @classmethod
+    def read_from_file(cls, filename):
+        with open(filename) as f:
+            raw_input = f.readlines()
 
+        new_map = cls()
 
-def print_map(map_):
-    for x_ in range(xmax):
-        for y_ in range(ymax):
-            print(map_[(x_, y_)], end='')
+        for y, line in enumerate(raw_input):
+            for x, char in enumerate(line.strip()):
+                new_map[(x, y)] = char
+
+        return new_map
+
+    def items(self):
+        return self._map.items()
+
+    def seat_occupied(self, x, y):
+        return self._map.get((x, y), ' ') == '#'
+
+    def print(self):
+        xmax = max(pos[0] for pos in self._map.keys())
+        ymax = max(pos[1] for pos in self._map.keys())
+        for x_ in range(xmax):
+            for y_ in range(ymax):
+                print(self._map[(x_, y_)], end='')
+            print('')
         print('')
+
+    def total_seats_occupied(self):
+        return list(self._map.values()).count('#')
 
 
 def iterate(map_):
-    def is_occupied_int(x_, y_):
-        return int(map_.get((x_, y_), ' ') == '#')
-
-    new_map = {}
+    new_map = Map()
     changes = False
-    for x in range(xmax):
-        for y in range(ymax):
-            neighbors = is_occupied_int(x - 1, y - 1) + is_occupied_int(x, y - 1) + is_occupied_int(x + 1, y - 1) \
-                        + is_occupied_int(x - 1, y) + is_occupied_int(x + 1, y) \
-                        + is_occupied_int(x - 1, y + 1) + is_occupied_int(x, y + 1) + is_occupied_int(x + 1, y + 1)
-            if map_[(x, y)] == 'L' and neighbors == 0:
-                new_map[(x, y)] = '#'
-                changes = True
-            elif map_[(x, y)] == '#' and neighbors >= 4:
-                new_map[(x, y)] = 'L'
-                changes = True
-            else:
-                new_map[(x, y)] = map_[(x, y)]
+    for ((x, y), char) in map_.items():
+        neighbors = sum(int(map_.seat_occupied(*pos)) for pos in
+                        [(x - 1, y - 1), (x, y - 1), (x + 1, y - 1), (x - 1, y), (x + 1, y), (x - 1, y + 1),
+                         (x, y + 1), (x + 1, y + 1)])
+        if char == 'L' and neighbors == 0:
+            new_map[(x, y)] = '#'
+            changes = True
+        elif char == '#' and neighbors >= 4:
+            new_map[(x, y)] = 'L'
+            changes = True
+        else:
+            new_map[(x, y)] = map_[(x, y)]
     return new_map, changes
 
 
+seat_map = Map.read_from_file('input.txt')
 while True:
-    seat_map, changes = iterate(seat_map)
-    if not changes:
+    seat_map, has_changes = iterate(seat_map)
+    if not has_changes:
         break
 
-print(list(seat_map.values()).count('#'))
+print(seat_map.total_seats_occupied())
