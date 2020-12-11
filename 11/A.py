@@ -58,10 +58,11 @@ def iterate(map_):
     return new_map, changes
 
 
-seat_map = Map.read_from_file('input.txt')
-while True:
-    seat_map, has_changes = iterate(seat_map)
-    if not has_changes:
-        break
+if __name__ == '__main__':
+    seat_map = Map.read_from_file('input.txt')
+    while True:
+        seat_map, has_changes = iterate(seat_map)
+        if not has_changes:
+            break
 
-print(seat_map.total_seats_occupied())
+    print(seat_map.total_seats_occupied())
