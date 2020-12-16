@@ -23,39 +23,22 @@ tickets = [my_ticket] + [[int(n) for n in t.split(',')] for t in nearbys.split('
 valid_tickets = [ticket for ticket in tickets if ticket_valid(ticket)]
 
 
-rule_candidates = defaultdict(list)
-pos_candidates = defaultdict(list)
-solutions = {}
+candidates = defaultdict(list)
 
 for pos in range(len(valid_tickets[0])):
     for field, *rule in rules:
         if all([number_fits_rule(ticket[pos], *rule) for ticket in valid_tickets]):
-            rule_candidates[field].append(pos)
-            pos_candidates[pos].append(field)
+            candidates[field].append(pos)
 
-while rule_candidates:
-    for rule, positions in list(rule_candidates.items()):
+while any(len(positions) > 1 for positions in candidates.values()):
+    for rule, positions in list(candidates.items()):
         if len(positions) == 1:
-            solutions[rule] = positions[0]
-            del rule_candidates[rule]
-            for other_rule, other_position_candidates in rule_candidates.items():
-                rule_candidates[other_rule] = [pos for pos in other_position_candidates if pos != positions[0]]
-            del pos_candidates[positions[0]]
-            for pos, rules in pos_candidates.items():
-                pos_candidates[pos] = [other_rule for other_rule in rules if other_rule != rule]
-
-    for pos, rules in list(pos_candidates.items()):
-        if len(rules) == 1:
-            solutions[rules[0]] = pos
-            del rule_candidates[rules[0]]
-            for other_rule, other_position_candidates in rule_candidates.items():
-                rule_candidates[other_rule] = [position for position in other_position_candidates if position != pos]
-            del pos_candidates[pos]
-            for other_pos, other_rules in pos_candidates.items():
-                pos_candidates[other_pos] = [other_rule for other_rule in other_rules if other_rule != rules[0]]
+            for other_rule, other_position_candidates in candidates.items():
+                if other_rule != rule:
+                    candidates[other_rule] = [pos for pos in other_position_candidates if pos != positions[0]]
 
 final_answer = 1
-for field, pos in solutions.items():
+for field, pos in candidates.items():
     if field.startswith('departure'):
-        final_answer *= tickets[0][pos]
+        final_answer *= tickets[0][pos[0]]
 print(final_answer)
