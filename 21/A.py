@@ -24,3 +24,10 @@ for allergen, ingredients in not_containing.items():
         set([ingredient for ingredient in ingredients if ingredient not in somewhere_else]))
 
 print(sum(1 if ingredient in f.ingredients else 0 for f in foods for ingredient in not_containing_anything))
+
+while any(len(ingredients) > 1 for ingredients in possibly_containing.values()):
+    for allergen in possibly_containing.keys():
+        possibly_containing[allergen] = possibly_containing[allergen] - set(
+            list(ing)[0] for a, ing in possibly_containing.items() if a != allergen and len(ing) == 1)
+
+print(','.join(list(possibly_containing[a])[0] for a in sorted(possibly_containing.keys())))
