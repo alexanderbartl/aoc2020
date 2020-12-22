@@ -15,7 +15,7 @@ def stringify(cards1, cards2):
     return ','.join(map(str, cards1)) + ':' + ','.join(map(str, cards2))
 
 
-def play_game(player1, player2):
+def play_game(player1, player2, recursive=True):
     hist = set()
     while True:
         if stringify(player1, player2) in hist:
@@ -24,7 +24,7 @@ def play_game(player1, player2):
 
         card1 = player1.popleft()
         card2 = player2.popleft()
-        if card1 <= len(player1) and card2 <= len(player2):
+        if recursive and card1 <= len(player1) and card2 <= len(player2):
             winner, _ = play_game(deque(list(player1)[:card1]), deque(list(player2)[:card2]))
         else:
             winner = 1 if card1 > card2 else 2
@@ -40,4 +40,5 @@ def play_game(player1, player2):
             return 1, final_score(player1)
 
 
+print(play_game(deck1.copy(), deck2.copy(), False))
 print(play_game(deck1, deck2))
