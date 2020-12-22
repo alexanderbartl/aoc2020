@@ -16,11 +16,15 @@ class Tile:
 
     def get_next(self, direction):
         fingerprint = getattr(self, f'fingerprint_{direction}')()
-        candidates = [t for t in tiles if t.id != self.id and fingerprint in t.fingerprints
-                      or self._reversed(fingerprint) in t.fingerprints]
+        candidates = [t for t in tiles if t.id != self.id and (fingerprint in t.fingerprints
+                      or self._reversed(fingerprint) in t.fingerprints)]
         if len(candidates) != 1:
             return None
         return candidates[0]
+
+    @property
+    def borderless(self):
+        return [l[1:-1] for l in self.img[1:-1]]
 
     def fingerprint_left(self):
         return self._fingerprint(''.join(l[0] for l in self.img))
